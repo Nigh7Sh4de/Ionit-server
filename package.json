@@ -1,0 +1,22 @@
+{
+  "name": "ionit-server",
+  "version": "0.0.1",
+  "description": "The backend server for the calendar management app Ionit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nigh7Sh4de/Ionit-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nigh7Sh4de/Ionit-server/issues"
+  },
+  "homepage": "https://github.com/Nigh7Sh4de/Ionit-server#readme",
+  "dependencies": {
+    "koa": "^2.4.1"
+  }
+}
