@@ -5,6 +5,7 @@ module.exports = function(app) {
     Mongo.connect(DB_URL)
         .then(connection => {
             app.events = connection.collection('events')
+            app.users = connection.collection('users')
             console.log('DB connection established.')
         })
         .catch(err => console.error(err))

@@ -21,7 +21,9 @@
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "koa-jwt": "^3.2.2",
+    "koa-passport": "^4.0.1",
     "koa-router": "^7.3.0",
-    "mongodb": "^2.2.33"
+    "mongodb": "^2.2.33",
+    "passport-google-token": "^0.1.2"
   }
 }

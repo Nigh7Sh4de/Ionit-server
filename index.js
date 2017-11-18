@@ -2,6 +2,9 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const BodyParser = require('koa-bodyparser')
 const ObjectID = require('mongodb').ObjectID
+const Passport = require('koa-passport')
+const GoogleTokenStrategy = require('passport-google-token').Strategy;
+
 
 const auth = require('./auth')
 
@@ -11,8 +14,25 @@ const securedRouter = new Router()
 
 require('./db')(app)
 
+Passport.serializeUser((user, done) => done(null, user))
+Passport.deserializeUser((user, done) => done(null, user))
+
+Passport.use(new GoogleTokenStrategy({
+  clientID: '516748484660-ui29nceef6h3c6pkjh536pa43iabiqqr.apps.googleusercontent.com',
+  clientSecret: 'ITfJoair0g5UXcquMBJElx-W'
+}, (accessToken, refreshToken, profile, done) => {
+  // const user = await app.users.findOrCreate({ googleId: profile.id })
+  // console.log(user)
+  // return done(null, user)
+  if (profile) {
+    done(null, {token: auth.generate() })
+  }
+}))
+
+
 app
   .use(BodyParser())
+  .use(Passport.initialize())
 
 router.get('/', async (ctx) => {
   ctx.body = { 
@@ -20,9 +40,10 @@ router.get('/', async (ctx) => {
   }
 })
 
-router.post('/auth', async (ctx) => {
+router.post('/auth', Passport.authenticate('google-token'), async (ctx) => {
   ctx.body = {
-    token: auth.generate()
+    status: 'got im',
+    token: ctx.state.user.token
   }
 })
 
