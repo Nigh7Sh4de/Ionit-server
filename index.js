@@ -3,8 +3,9 @@ const Router = require('koa-router')
 const BodyParser = require('koa-bodyparser')
 const ObjectID = require('mongodb').ObjectID
 const Passport = require('koa-passport')
-const GoogleTokenStrategy = require('passport-google-token').Strategy;
+const GoogleTokenStrategy = require('passport-google-token').Strategy
 
+const Google = require('googleapis')
 
 const auth = require('./auth')
 
@@ -34,11 +35,64 @@ app
   .use(BodyParser())
   .use(Passport.initialize())
 
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  }
+  catch(e) {
+    ctx.status = e.status || e.code || 500
+    ctx.body = {
+      message: e.message, 
+      stack: e.stack 
+    }
+    ctx.app.emit('error', e, ctx)
+  }
+})
+
 router.get('/', async (ctx) => {
   ctx.body = { 
     message: 'Hello World!'
   }
 })
+
+
+app.oauth2Client = new Google.auth.OAuth2(
+  '516748484660-ui29nceef6h3c6pkjh536pa43iabiqqr.apps.googleusercontent.com',
+  'ITfJoair0g5UXcquMBJElx-W',
+  'http://localhost:3000/auth/callback'
+)
+
+router.get('/auth', async (ctx) => {
+
+  const url = ctx.app.oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: ['https://www.googleapis.com/auth/calendar']
+  })
+
+  ctx.body = {
+    url,
+    auth_request: {
+      scope: ['https://www.googleapis.com/auth/calendar'],
+      response_type: 'code',
+      client_id: '516748484660-ui29nceef6h3c6pkjh536pa43iabiqqr.apps.googleusercontent.com',
+      redirect_uri: 'http://localhost:3000/auth/callback'
+    }
+  }
+})
+
+router.get('/auth/callback', async (ctx, done) => 
+  new Promise((resolve, reject) => {
+    ctx.app.oauth2Client.getToken(ctx.request.query.code, (error, tokens) => {
+      if (error) reject(error)
+      ctx.app.oauth2Client.credentials = tokens 
+      ctx.body = {
+        message: 'success',
+        tokens: tokens
+      }
+      resolve()
+    })
+  })
+)
 
 router.post('/auth', Passport.authenticate('google-token'), async (ctx) => {
   ctx.body = {
